@@ -1,0 +1,13 @@
+server:
+  port: 9999
+#spring:
+#  data:
+#    elasticsearch:
+#      client:
+#        reactive:
+#          endpoints:
+spring:
+  elasticsearch:
+    rest:
+      uris:
+            - 192.168.15.129:9200

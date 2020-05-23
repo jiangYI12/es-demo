@@ -1,0 +1,66 @@
+PUT /userentity
+{
+  "settings" : {
+    "analysis" : {
+      "analyzer" : {
+        "ik_max_word_pinyin": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["pinyin_first_letter_and_full_pinyin_filter", "word_delimiter"]}
+      },
+      "filter" : {
+        "pinyin_first_letter_and_full_pinyin_filter" : {
+          "type" : "pinyin",
+          "keep_first_letter" : true,
+          "keep_none_chinese" : true,
+          "keep_original" : false,
+          "limit_first_letter_length" : 16,
+          "lowercase" : true,
+          "trim_whitespace" : true,
+          "keep_none_chinese_in_first_letter" : true,
+          "remove_duplicated_term" : true
+
+        }
+      }
+    }
+  }
+}
+
+PUT userentity/_mapping
+{
+  "dynamic": false,
+  "properties": {
+    "username": {
+      "type": "text",
+      "analyzer":"ik_max_word_pinyin",
+      "search_analyzer":"ik_max_word_pinyin"
+    },
+    "age": {
+      "type": "integer"
+    },
+    "birthday": {
+      "type": "date",
+      "format": "yyyy-MM-dd hh:mm:ss"
+    },
+    "createTime": {
+      "type": "date",
+      "format": "yyyy-MM-dd hh:mm:ss"
+    },
+    "lastUpdateTime": {
+      "type": "date",
+      "format": "yyyy-MM-dd hh:mm:ss"
+    },
+    "cityEnName": {
+      "type": "keyword"
+    }
+  }
+}
+
+POST userentity/_mapping
+{
+  "properties":{
+    "id":{
+      "type":"integer"
+    }
+  }
+}

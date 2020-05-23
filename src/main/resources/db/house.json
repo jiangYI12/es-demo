@@ -1,0 +1,102 @@
+//PUT /test
+{
+  "settings" : {
+    "analysis" : {
+      "analyzer" : {
+        "ik_max_word_pinyin": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["pinyin_first_letter_and_full_pinyin_filter", "word_delimiter"]}
+      },
+      "filter" : {
+        "pinyin_first_letter_and_full_pinyin_filter" : {
+          "type" : "pinyin",
+          "keep_first_letter" : true,
+          "keep_none_chinese" : true,
+          "keep_original" : false,
+          "limit_first_letter_length" : 16,
+          "lowercase" : true,
+          "trim_whitespace" : true,
+          "keep_none_chinese_in_first_letter" : true,
+          "remove_duplicated_term" : true
+
+        }
+      }
+    }
+  }
+}
+
+//PUT test/_mapping
+{
+  "dynamic": false,
+  "properties": {
+    "houseId": {
+      "type": "long"
+    },
+    "title": {
+      "type": "text",
+      "analyzer":"ik_max_word_pinyin",
+      "search_analyzer":"ik_max_word_pinyin"
+    },
+    "price": {
+      "type": "integer"
+    },
+    "area": {
+      "type": "integer"
+    },
+    "createTime": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "lastUpdateTime": {
+      "type": "date",
+      "format": "strict_date_optional_time||epoch_millis"
+    },
+    "cityEnName": {
+      "type": "keyword"
+    },
+    "regionEnName": {
+      "type": "keyword"
+    },
+    "direction": {
+      "type": "integer"
+    },
+    "distanceToSubway": {
+      "type": "integer"
+    },
+    "subwayLineName": {
+      "type": "keyword"
+    },
+    "subwayStationName": {
+      "type": "keyword"
+    },
+    "tags": {
+      "type": "text"
+    },
+    "street": {
+      "type": "keyword"
+    },
+    "district": {
+      "type": "keyword"
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    },
+    "layoutDesc" : {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    },
+    "traffic": {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    },
+    "roundService": {
+      "type": "text",
+      "analyzer": "ik_max_word"
+    },
+    "rentWay": {
+      "type": "integer"
+    }
+  }
+}
