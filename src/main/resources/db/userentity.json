@@ -1,3 +1,4 @@
+DELETE /userentity
 PUT /userentity
 {
   "settings" : {
@@ -40,15 +41,15 @@ PUT userentity/_mapping
     },
     "birthday": {
       "type": "date",
-      "format": "yyyy-MM-dd hh:mm:ss"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
     },
     "createTime": {
       "type": "date",
-      "format": "yyyy-MM-dd hh:mm:ss"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
     },
     "lastUpdateTime": {
       "type": "date",
-      "format": "yyyy-MM-dd hh:mm:ss"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
     },
     "cityEnName": {
       "type": "keyword"
@@ -64,3 +65,11 @@ POST userentity/_mapping
     }
   }
 }
+
+POST _bulk
+{"index":{"_index":"userentity","_id":1}}
+{"id":1,"username":"蔡徐坤","age":28,"birthday":"2015-01-01 12:10:30"}
+
+GET /userentity/_search
+
+DELETE /userentity/_doc/1

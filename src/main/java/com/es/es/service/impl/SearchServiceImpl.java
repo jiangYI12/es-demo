@@ -3,6 +3,7 @@ package com.es.es.service.impl;
 import com.es.es.entity.UserEntity;
 import com.es.es.service.ISearchService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,11 @@ public class SearchServiceImpl implements ISearchService {
 
     private final ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    private final ElasticsearchOperations elasticsearchOperations;
 
     @Override
     public UserEntity getUserById(Long id) {
-        UserEntity userEntity = elasticsearchRestTemplate.get(String.valueOf(id),UserEntity.class);
+        UserEntity userEntity = elasticsearchOperations.get(String.valueOf(id),UserEntity.class);
         return userEntity;
     }
 
