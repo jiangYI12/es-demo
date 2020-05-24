@@ -1,14 +1,11 @@
 package com.es.es.service;
 
 import com.es.es.entity.UserEntity;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
-import javax.xml.crypto.Data;
+import java.util.Date;
 import java.util.List;
 
-public interface ISearchService {
-    UserEntity getUserById(Long id);
-    List<UserEntity> getUserEntityPage(UserEntity userEntity);
-    List<UserEntity> getBirthDayBetween(Data from,Data to);
-    List<UserEntity> getAgeBetween(Integer age);
-    void insertUserEntity(UserEntity userEntity);
+public interface ISearchService extends ElasticsearchRepository<UserEntity,String> {
+    List<UserEntity> findByBirthdayBetweenAndUsername(Date from,Date to,String username);
 }
