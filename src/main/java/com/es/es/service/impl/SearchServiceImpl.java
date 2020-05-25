@@ -10,13 +10,17 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchDateConverter;
 import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -42,7 +46,11 @@ public class SearchServiceImpl implements ICustomSearchService {
         builder.must(QueryBuilders.matchQuery("username",userEntityVO.getUsername()));
         //时间条件
         if(!ObjectUtils.isEmpty(userEntityVO.getFromData())&&!ObjectUtils.isEmpty(userEntityVO.getToData())){
-            builder.must(QueryBuilders.rangeQuery("birthday").gte(userEntityVO.getFromData()).lte(userEntityVO.getToData()).format("strict_date_time_no_millis"));
+            //时间转换
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            builder.must(QueryBuilders.rangeQuery("birthday")
+                    .gte(sdf.format(userEntityVO.getFromData())+"Z").lte(sdf.format(userEntityVO.getToData())+"Z")
+                    .format(DateFormat.date_time_no_millis.name()));
         }
         //设置高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder()
