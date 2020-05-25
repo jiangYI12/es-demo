@@ -1,14 +1,20 @@
 package com.es.es.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.es.es.entity.UserEntity;
 import com.es.es.service.ICustomSearchService;
 import com.es.es.service.ISearchService;
 import com.es.es.vo.UserEntityVO;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.support.ValueType;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -85,6 +91,23 @@ public class SearchServiceImpl implements ICustomSearchService {
     @Override
     public List<UserEntity> getAgeBetween(Integer age) {
         return null;
+    }
+
+    @Override
+    public String statisticsCity(UserEntityVO userEntityVO) {
+        BoolQueryBuilder builder = QueryBuilders.boolQuery();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        builder.must(QueryBuilders.rangeQuery("birthday")
+                .gte(sdf.format(userEntityVO.getFromData())+"Z").lte(sdf.format(userEntityVO.getToData())+"Z")
+                .format(DateFormat.date_time_no_millis.name()));
+        //聚合运算
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .addAggregation(AggregationBuilders.terms("cityAgg").field("cityEnName"))
+                .build();
+//        log.info(nativeSearchQuery.getQuery().toString());
+        log.info(nativeSearchQuery.getAggregations().toString());
+        SearchHits search = elasticsearchOperations.search(nativeSearchQuery,UserEntity.class);
+        return JSONObject.toJSONString(search.getAggregations().asMap());
     }
 
     @Override

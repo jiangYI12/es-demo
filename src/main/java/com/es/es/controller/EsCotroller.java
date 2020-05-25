@@ -1,5 +1,6 @@
 package com.es.es.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.es.es.entity.UserEntity;
 import com.es.es.service.ICustomSearchService;
 import com.es.es.service.ISearchService;
@@ -32,6 +33,11 @@ public class EsCotroller {
     @RequestMapping("/getUserEntityPage")
     public SearchHits<UserEntity> getUserEntityPage(@RequestBody UserEntityVO userEntityVO){
         return iCustomSearchService.getUserEntityPage(userEntityVO);
+    }
+
+    @RequestMapping("/getCityAgg")
+    public String getCityAgg(@RequestBody UserEntityVO userEntityVO){
+        return  iCustomSearchService.statisticsCity(userEntityVO);
     }
 
     @RequestMapping("/save")
