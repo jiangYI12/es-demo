@@ -106,9 +106,10 @@ public class SearchServiceImpl implements ICustomSearchService {
                 .format(DateFormat.date_time_no_millis.name()));
         //聚合运算
         NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .withQuery(builder)
                 .addAggregation(AggregationBuilders.terms("cityAgg").field("cityEnName"))
                 .build();
-//        log.info(nativeSearchQuery.getQuery().toString());
+        log.info(nativeSearchQuery.getQuery().toString());
         log.info(nativeSearchQuery.getAggregations().toString());
         SearchHits search = elasticsearchOperations.search(nativeSearchQuery,UserEntity.class);
         try {

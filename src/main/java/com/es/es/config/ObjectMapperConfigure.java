@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+
 
 @Configuration
 public class ObjectMapperConfigure {
@@ -22,4 +24,5 @@ public class ObjectMapperConfigure {
         module.addSerializer(serializer);
         return module;
     }
+
 }

@@ -36,7 +36,7 @@ public class EsCotroller {
         return iCustomSearchService.getUserEntityPage(userEntityVO);
     }
 
-    @RequestMapping("/getCityAgg")
+    @RequestMapping(value = "/getCityAgg",produces = "application/json;charset=UTF-8")
     public String getCityAgg(@RequestBody UserEntityVO userEntityVO) throws JsonProcessingException {
         return  iCustomSearchService.statisticsCity(userEntityVO);
     }

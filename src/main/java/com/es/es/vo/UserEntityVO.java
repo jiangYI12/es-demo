@@ -21,4 +21,5 @@ public class UserEntityVO extends UserEntity {
     private int pageSize;
 
     private int pageNo;
+
 }
