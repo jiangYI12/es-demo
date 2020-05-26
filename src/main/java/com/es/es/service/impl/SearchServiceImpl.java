@@ -5,6 +5,9 @@ import com.es.es.entity.UserEntity;
 import com.es.es.service.ICustomSearchService;
 import com.es.es.service.ISearchService;
 import com.es.es.vo.UserEntityVO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.transport.TransportClient;
@@ -14,6 +17,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValueType;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -40,6 +44,7 @@ public class SearchServiceImpl implements ICustomSearchService {
 
     private final ISearchService iSearchService;
 
+    private final ObjectMapper objectMapper;
     @Override
     public UserEntity getUserById(Long id) {
         UserEntity userEntity = elasticsearchOperations.get(String.valueOf(id),UserEntity.class);
@@ -78,7 +83,6 @@ public class SearchServiceImpl implements ICustomSearchService {
                 .build();
         log.info(nativeSearchQuery.getQuery().toString());
         SearchHits<UserEntity> search = elasticsearchOperations.search(nativeSearchQuery,UserEntity.class);
-
         return search;
     }
 
@@ -107,7 +111,12 @@ public class SearchServiceImpl implements ICustomSearchService {
 //        log.info(nativeSearchQuery.getQuery().toString());
         log.info(nativeSearchQuery.getAggregations().toString());
         SearchHits search = elasticsearchOperations.search(nativeSearchQuery,UserEntity.class);
-        return JSONObject.toJSONString(search.getAggregations().asMap());
+        try {
+            return  objectMapper.writeValueAsString(search);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

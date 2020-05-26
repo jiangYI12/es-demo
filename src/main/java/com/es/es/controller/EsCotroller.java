@@ -5,6 +5,7 @@ import com.es.es.entity.UserEntity;
 import com.es.es.service.ICustomSearchService;
 import com.es.es.service.ISearchService;
 import com.es.es.vo.UserEntityVO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,12 +32,12 @@ public class EsCotroller {
     }
 
     @RequestMapping("/getUserEntityPage")
-    public SearchHits<UserEntity> getUserEntityPage(@RequestBody UserEntityVO userEntityVO){
+    public SearchHits<UserEntity> getUserEntityPage(@RequestBody UserEntityVO userEntityVO) {
         return iCustomSearchService.getUserEntityPage(userEntityVO);
     }
 
     @RequestMapping("/getCityAgg")
-    public String getCityAgg(@RequestBody UserEntityVO userEntityVO){
+    public String getCityAgg(@RequestBody UserEntityVO userEntityVO) throws JsonProcessingException {
         return  iCustomSearchService.statisticsCity(userEntityVO);
     }
 

@@ -2,6 +2,7 @@ package com.es.es.service;
 
 import com.es.es.entity.UserEntity;
 import com.es.es.vo.UserEntityVO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.elasticsearch.core.SearchHits;
 
 import java.util.List;
