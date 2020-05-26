@@ -53,6 +53,10 @@ PUT userentity/_mapping
     },
     "cityEnName": {
       "type": "keyword"
+    },
+//    搜索建议
+    "suggest" : {
+      "type" : "completion"
     }
   }
 }

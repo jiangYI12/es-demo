@@ -10,27 +10,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryShardContext;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.support.ValueType;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchDateConverter;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -95,6 +96,20 @@ public class SearchServiceImpl implements ICustomSearchService {
     @Override
     public List<UserEntity> getAgeBetween(Integer age) {
         return null;
+    }
+
+    @Override
+    public SearchResponse searchSuggest(String userName) {
+        String suggestField="username.suggest";//指定在哪个字段搜索
+        Integer suggestMaxCount=10;//获得最大suggest条数
+        CompletionSuggestionBuilder suggestionBuilderDistrict  = SuggestBuilders.completionSuggestion(suggestField)
+             .size(suggestMaxCount)
+             .prefix(userName);
+        SuggestBuilder suggestBuilder = new SuggestBuilder();
+        suggestBuilder.addSuggestion("autocomplete", suggestionBuilderDistrict);//添加suggest
+     SearchResponse searchResponse = elasticsearchOperations.suggest(suggestBuilder, IndexCoordinates.of("userentity"));
+
+        return searchResponse;
     }
 
     @Override
