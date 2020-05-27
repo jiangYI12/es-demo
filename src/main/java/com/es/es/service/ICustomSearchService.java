@@ -17,4 +17,5 @@ public interface ICustomSearchService {
     SearchResponse searchSuggest(String userName);
     String statisticsCity(UserEntityVO userEntityVO);
     void insertUserEntity(UserEntity userEntity);
+    void createSuggest(UserEntity userEntity);
 }

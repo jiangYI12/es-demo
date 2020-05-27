@@ -16,10 +16,18 @@ class EsApplicationTests {
 
     @Autowired
     private ISearchService iSearchService;
+    @Autowired
+    private ICustomSearchService iCustomSearchService;
+    @Test
+    void userEntity3() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setCityEnName("佛山");
+        userEntity.setUsername("蔡徐坤");
+        iCustomSearchService.createSuggest(userEntity);
+    }
     @Test
     void userEntity4() {
         List<UserEntity> list =  new ArrayList<>();
-
         UserEntity userEntity = new UserEntity();
         userEntity.setId("1");
         userEntity.setAge(18);
@@ -112,6 +120,7 @@ class EsApplicationTests {
         list.add(userEntity9);
         for (UserEntity u :
                 list) {
+            iCustomSearchService.createSuggest(u);
             iSearchService.save(u);
         }
     }

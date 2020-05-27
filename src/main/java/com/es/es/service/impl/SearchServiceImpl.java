@@ -1,23 +1,23 @@
 package com.es.es.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.es.es.entity.UserEntity;
+import com.es.es.entity.UserSuggest;
 import com.es.es.service.ICustomSearchService;
 import com.es.es.service.ISearchService;
 import com.es.es.vo.UserEntityVO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.AnalyzeRequest;
+import org.elasticsearch.client.indices.AnalyzeResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryShardContext;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
@@ -31,7 +31,9 @@ import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -43,9 +45,13 @@ public class SearchServiceImpl implements ICustomSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
 
+
     private final ISearchService iSearchService;
 
     private final ObjectMapper objectMapper;
+
+    private RestHighLevelClient restClient;
+
     @Override
     public UserEntity getUserById(Long id) {
         UserEntity userEntity = elasticsearchOperations.get(String.valueOf(id),UserEntity.class);
@@ -100,15 +106,16 @@ public class SearchServiceImpl implements ICustomSearchService {
 
     @Override
     public SearchResponse searchSuggest(String userName) {
-        String suggestField="username.suggest";//指定在哪个字段搜索
+        String suggestField="suggest";//指定在哪个字段搜索
         Integer suggestMaxCount=10;//获得最大suggest条数
         CompletionSuggestionBuilder suggestionBuilderDistrict  = SuggestBuilders.completionSuggestion(suggestField)
              .size(suggestMaxCount)
              .prefix(userName);
         SuggestBuilder suggestBuilder = new SuggestBuilder();
         suggestBuilder.addSuggestion("autocomplete", suggestionBuilderDistrict);//添加suggest
-     SearchResponse searchResponse = elasticsearchOperations.suggest(suggestBuilder, IndexCoordinates.of("userentity"));
 
+     SearchResponse searchResponse = elasticsearchRestTemplate
+             .suggest(suggestBuilder, IndexCoordinates.of("userentity"));
         return searchResponse;
     }
 
@@ -138,5 +145,27 @@ public class SearchServiceImpl implements ICustomSearchService {
     @Override
     public void insertUserEntity(UserEntity userEntity) {
         elasticsearchRestTemplate.save(userEntity);
+    }
+
+    //获取分词结果并插入搜索建议字段
+    @Override
+    public void createSuggest(UserEntity userEntity) {
+
+        AnalyzeRequest analyzeRequest = AnalyzeRequest
+               .buildCustomAnalyzer("userentity","ik_max_word").build(userEntity.getUsername(),userEntity.getCityEnName());
+        try {
+            List<AnalyzeResponse.AnalyzeToken> analyzeTokens = restClient.indices()
+                    .analyze(analyzeRequest, RequestOptions.DEFAULT).getTokens();
+            List<UserSuggest> userSuggests = new LinkedList<>();
+            for(AnalyzeResponse.AnalyzeToken analyzeToken:analyzeTokens){
+                UserSuggest userSuggest = new UserSuggest();
+                userSuggest.setInput(analyzeToken.getTerm());
+                userSuggest.setWeight(10);
+                userSuggests.add(userSuggest);
+            }
+            userEntity.setSuggestList(userSuggests);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
