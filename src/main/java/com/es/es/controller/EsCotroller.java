@@ -45,7 +45,7 @@ public class EsCotroller {
 
     //搜索自动补全
     @RequestMapping(value = "/suggest",produces = "application/json;charset=UTF-8")
-    public SearchResponse suggest(@RequestParam("username") String username) throws JsonProcessingException {
+    public Object suggest(@RequestParam("username") String username) throws JsonProcessingException {
         return  iCustomSearchService.searchSuggest(username);
     }
 

@@ -14,7 +14,7 @@ public interface ICustomSearchService {
     SearchHits<UserEntity> getUserEntityPage(UserEntityVO userEntityVO);
     List<UserEntity> getBirthDayBetween(UserEntityVO userEntityVO);
     List<UserEntity> getAgeBetween(Integer age);
-    SearchResponse searchSuggest(String userName);
+    Object searchSuggest(String userName);
     String statisticsCity(UserEntityVO userEntityVO);
     void insertUserEntity(UserEntity userEntity);
     void createSuggest(UserEntity userEntity);

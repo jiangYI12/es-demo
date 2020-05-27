@@ -14,10 +14,12 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.AnalyzeRequest;
 import org.elasticsearch.client.indices.AnalyzeResponse;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
@@ -33,6 +35,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,6 +61,7 @@ public class SearchServiceImpl implements ICustomSearchService {
         return userEntity;
     }
 
+    //条件分页搜索
     @Override
     public  SearchHits<UserEntity> getUserEntityPage(UserEntityVO userEntityVO) {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
@@ -104,21 +108,30 @@ public class SearchServiceImpl implements ICustomSearchService {
         return null;
     }
 
+    //搜索栏建议
     @Override
-    public SearchResponse searchSuggest(String userName) {
+    public Object searchSuggest(String userName) {
         String suggestField="suggest";//指定在哪个字段搜索
         Integer suggestMaxCount=10;//获得最大suggest条数
+        //设置建议搜索
         CompletionSuggestionBuilder suggestionBuilderDistrict  = SuggestBuilders.completionSuggestion(suggestField)
              .size(suggestMaxCount)
-             .prefix(userName);
+             .prefix(userName, Fuzziness.AUTO);
+        //创建建议搜索
         SuggestBuilder suggestBuilder = new SuggestBuilder();
         suggestBuilder.addSuggestion("autocomplete", suggestionBuilderDistrict);//添加suggest
-
+        //执行建议搜索
      SearchResponse searchResponse = elasticsearchRestTemplate
              .suggest(suggestBuilder, IndexCoordinates.of("userentity"));
-        return searchResponse;
+       List<Suggest.Suggestion.Entry.Option> options  = (List<Suggest.Suggestion.Entry.Option>) searchResponse.getSuggest().getSuggestion("autocomplete").<UserEntity>getEntries().get(0).getOptions();
+        List<String> list = new ArrayList<>();
+       for(Suggest.Suggestion.Entry.Option o:options){
+           list.add(o.getText().toString());
+        }
+       return list;
     }
 
+    //聚合搜索
     @Override
     public String statisticsCity(UserEntityVO userEntityVO) {
         BoolQueryBuilder builder = QueryBuilders.boolQuery();
@@ -163,7 +176,7 @@ public class SearchServiceImpl implements ICustomSearchService {
                 userSuggest.setWeight(10);
                 userSuggests.add(userSuggest);
             }
-            userEntity.setSuggestList(userSuggests);
+            userEntity.setSuggest(userSuggests);
         } catch (IOException e) {
             e.printStackTrace();
         }

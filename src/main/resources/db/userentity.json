@@ -41,22 +41,24 @@ PUT userentity/_mapping
     },
     "birthday": {
       "type": "date",
-      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||date_time_no_millis"
     },
     "createTime": {
       "type": "date",
-      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||date_time_no_millis"
     },
     "lastUpdateTime": {
       "type": "date",
-      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||date_time_no_millis"
     },
     "cityEnName": {
       "type": "keyword"
     },
 //    搜索建议
     "suggest" : {
-      "type" : "completion"
+      "type" : "completion",
+      "analyzer":"ik_max_word",
+      "search_analyzer":"ik_max_word"
     }
   }
 }
